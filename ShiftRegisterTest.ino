@@ -1,3 +1,6 @@
+#include "ByteSequence.h"
+#include <cstdint>
+
 void updateRegisters(uint16_t val);
 void pong();
 void counter();
@@ -31,6 +34,8 @@ void setup()
 
 void loop() 
 {
+  ByteSequence *seq = newSequence(6);
+  
   leds = 0x0000;
   pong();
   delay(300);
