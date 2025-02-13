@@ -10,11 +10,11 @@ void reWriteByte(int position, uint8_t newByte, ByteSequence *seq) {
 	seq->bytes[position] = newByte;
 }
 
-ByteSequence *newSequence(int length) {
+ByteSequence *newSequence(int numBytes) {
 	ByteSequence *seq = new ByteSequence;
 
-	seq->bytes = new uint8_t[length];
-	seq->numBytes = length;
+	seq->bytes = new uint8_t[numBytes];
+	seq->numBytes = numBytes;
 
 	return seq;
 }
@@ -47,14 +47,22 @@ Iterator *newIterator(ByteSequence *seq) {
 	return it;
 }
 
+void convertNumtoSequence(ByteSequence *seq, int num) {
+
+}
+
+ByteSequence *convertNumtoSequence(int num) {
+	ByteSequence *seq = newSequence(log(num) / log(2) * BYTESIZE);
+}
+
 /**
  * returns the current element of a sequence and iterates to the next element
- * return 2 if no other element exists
+ * returns END if no other element exists
  */
 int next(Iterator *it) {
 
 	if (it->pos >= it->seq->numBytes) {
-		return 2;
+		return END;
 	}
 
 	uint8_t mask = 0xF0 >> (it->pos % 8);

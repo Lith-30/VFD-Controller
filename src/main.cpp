@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "ByteSequence.h"
+#include "RegisterController.h"
 
 void updateRegisters(uint16_t val);
 void pong();
@@ -15,8 +16,12 @@ int dataPin = 12;     // (12) DS [S1] on 74HC595
 int oePin = 8;
 int clearPin = 7;
 
-void setup() 
-{
+int numBytes = 6;
+// init for 48 pins or 6 bytes
+ByteSequence *seq  = newSequence(numBytes);
+RegController *reg;
+
+void setup() {
   pinMode(latchPin, OUTPUT);
   pinMode(dataPin, OUTPUT);  
   pinMode(clockPin, OUTPUT);
@@ -24,6 +29,11 @@ void setup()
   pinMode(clearPin, OUTPUT);
   digitalWrite(clearPin, HIGH);
   setBrightness(100);
+
+  reg = newController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
+
+  
+
   //Serial.begin(9600);
 }
 
@@ -45,8 +55,8 @@ void setBrightness(int level) {
   analogWrite(oePin, level);
 }
 
-void allOn() {
-  digitalWrite(latchPin, LOW);
+void allOn(VFDController *controller) {
+  digitalWrite(controller->latchPin, LOW);
   for (int i = 0; i < 48; i++) {
     digitalWrite(clockPin, LOW);
     digitalWrite(dataPin, HIGH);
