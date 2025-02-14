@@ -1,37 +1,39 @@
 #include "ByteSequence.h"
-#include <iostream>
 #include <stdint.h>
 using namespace std;
 
 
 void reWriteByte(int position, uint8_t newByte, ByteSequence *seq) {
-  seq->bytes[position] = newByte;
+	if (position >= seq->numBytes) {
+		return;
+	}
+	seq->bytes[position] = newByte;
 }
 
 ByteSequence *newSequence(int length) {
-  ByteSequence *seq = new ByteSequence;
+	ByteSequence *seq = new ByteSequence;
 
-  seq->bytes = new uint8_t[length];
-  seq->numBytes = length;
+	seq->bytes = new uint8_t[length];
+	seq->numBytes = length;
 
-  return seq;
+	return seq;
 }
 
 void LeftShiftBits(ByteSequence *seq) {
-  uint8_t carry = 0;
-  for (int i = 0; i < seq->numBytes; i++) {
-    seq->bytes[i] >>= 1;
-    if (carry != 0x00) {
-      seq->bytes[i] |= 0x10;
-    }
+	uint8_t carry = 0;
+	for (int i = 0; i < seq->numBytes; i++) {
+		seq->bytes[i] >>= 1;
+		if (carry != 0x00) {
+		seq->bytes[i] |= 0x10;
+		}
 
-    uint8_t carry = seq->bytes[i] & 0x01;
-  }
+		uint8_t carry = seq->bytes[i] & 0x01;
+	}
 }
 
 void freeSequence(ByteSequence *seq) {
-  delete seq->bytes;
-  delete seq;
+	delete seq->bytes;
+	delete seq;
 }
 
 
@@ -39,10 +41,10 @@ void freeSequence(ByteSequence *seq) {
  * iterator pattern
  */
 Iterator *newIterator(ByteSequence *seq) {
-  Iterator *it = new Iterator;
-  it->pos = 0;
-  it->seq = seq;
-  return it;
+	Iterator *it = new Iterator;
+	it->pos = 0;
+	it->seq = seq;
+	return it;
 }
 
 /**
@@ -51,18 +53,18 @@ Iterator *newIterator(ByteSequence *seq) {
  */
 int next(Iterator *it) {
 
-  if (it->pos >= it->seq->numBytes) {
-    return NULL;
-  }
-  uint8_t mask = 0xF0 >> (it->pos % 8);
-    it->pos++;
+	if (it->pos >= it->seq->numBytes) {
+		return NULL;
+	}
+	uint8_t mask = 0xF0 >> (it->pos % 8);
+		it->pos++;
 
-  return (it->seq->bytes[it->pos / 8] & mask) != 0x00;
+	return (it->seq->bytes[it->pos / 8] & mask) != 0x00;
 
 }
 
 void freeIterator(Iterator *it) {
-  delete it;
+	delete it;
 }
 
 

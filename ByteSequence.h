@@ -1,4 +1,3 @@
-#include <iostream>
 
 #ifndef BYTESEQUENCE_H
 #define BYTESEQUENCE_H
