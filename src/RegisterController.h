@@ -1,3 +1,5 @@
+#include "ByteSequence.h"
+
 #ifndef REGISTERCONTROLLER_H
 #define REGISTERCONTROLLER_H
 

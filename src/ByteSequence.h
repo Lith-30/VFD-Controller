@@ -1,8 +1,10 @@
+#include <stdint.h>
+#include <Arduino.h>
 
 #ifndef BYTESEQUENCE_H
 #define BYTESEQUENCE_H
 
-#define END 2;
+#define END 2
 
 struct ByteSequence {
   uint8_t *bytes;
@@ -21,6 +23,10 @@ Iterator *newIterator(ByteSequence *seq);
 int next(Iterator *it);
 void freeIterator(Iterator *it);
 ByteSequence *newSequence(int numBytes);
+void convertNumtoSequence(ByteSequence *seq, int num);
+void convertNumtoSequence(int num);
+String byteToString(uint8_t byte);
+void displayState(ByteSequence *seq);
 
 #endif // BYTESEQUENCE_H
 

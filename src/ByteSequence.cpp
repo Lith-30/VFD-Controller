@@ -1,7 +1,9 @@
 #include "ByteSequence.h"
 #include <stdint.h>
+#include <Arduino.h>
 using namespace std;
 
+#define BYTESIZE 8
 
 void reWriteByte(int position, uint8_t newByte, ByteSequence *seq) {
 	if (position >= seq->numBytes) {
@@ -14,6 +16,10 @@ ByteSequence *newSequence(int numBytes) {
 	ByteSequence *seq = new ByteSequence;
 
 	seq->bytes = new uint8_t[numBytes];
+	// init to zero
+	for (int i = 0; i < numBytes; i++) {
+		seq->bytes[i] = 0;
+	}
 	seq->numBytes = numBytes;
 
 	return seq;
@@ -36,6 +42,42 @@ void freeSequence(ByteSequence *seq) {
 	delete seq;
 }
 
+void convertNumtoSequence(ByteSequence *seq, int num) {
+	uint32_t u_num = num;
+	for (int i = 0; i < seq->numBytes; i++) {
+		uint32_t mask = 0x000000FF;
+		seq->bytes[i] = 0x00;	// reset byte
+		seq->bytes[i] = u_num & 0x000000FF;
+		//Serial.println(seq->bytes[i]);
+		u_num >>= 8;
+	}
+
+}
+
+void displayState(ByteSequence *seq) {
+	Serial.print("Number of Bytes: ");
+	Serial.println(seq->numBytes);
+
+
+	for (int i = 0; i < seq->numBytes; i++) {
+		Serial.print(byteToString(seq->bytes[i]));
+		Serial.print("\n");
+	}
+}
+
+String byteToString(uint8_t byte) {
+	String str = "";
+	for (int i = 0; i < BYTESIZE; i++) {
+		if ((byte & (0xF0 >> i)) != 0x00) {
+			str += "1";
+		} else {
+			str += "0";
+		}
+	}
+	str += "\0";
+	return str;
+}
+
 
 /**
  * iterator pattern
@@ -47,27 +89,25 @@ Iterator *newIterator(ByteSequence *seq) {
 	return it;
 }
 
-void convertNumtoSequence(ByteSequence *seq, int num) {
-
-}
-
-ByteSequence *convertNumtoSequence(int num) {
-	ByteSequence *seq = newSequence(log(num) / log(2) * BYTESIZE);
-}
-
 /**
  * returns the current element of a sequence and iterates to the next element
  * returns END if no other element exists
  */
 int next(Iterator *it) {
 
-	if (it->pos >= it->seq->numBytes) {
+	if (it->pos > it->seq->numBytes * 8) {
 		return END;
 	}
 
-	uint8_t mask = 0xF0 >> (it->pos % 8);
+	// Reverse direction of bytes
+	int byte = it->seq->numBytes - (it->pos / 8) - 1;
+	uint8_t mask = 0x80 >> (it->pos % 8);
+
+	// normal direction of bytes
+	// int byte = it->pos / 8;
+	// uint8_t mask = 0x01 << (it->pos % 8);
 	it->pos++;
-	return (it->seq->bytes[it->pos / 8] & mask) != 0x00;
+	return (it->seq->bytes[byte] & mask) != 0x00;
 
 }
 

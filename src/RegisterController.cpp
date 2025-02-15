@@ -14,6 +14,8 @@ RegController *newController(int latchPin, int clockPin, int dataPin, int oePin,
     con->clearPin = clearPin;
     con->seq = seq;
     con->numPins = seq->numBytes * BYTESIZE;
+
+    return con;
 }
 
 RegController *newController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin, int numPins) {
@@ -26,6 +28,8 @@ RegController *newController(int latchPin, int clockPin, int dataPin, int oePin,
     con->clearPin = clearPin;
     con->seq = newSequence((numPins + 7) / 8);
     con->numPins = numPins;
+
+    return con;
 }
 
 void updateRegisters(RegController *con) {
@@ -34,7 +38,7 @@ void updateRegisters(RegController *con) {
 
     digitalWrite(con->latchPin, LOW);
 
-    while (val = END) {
+    while (val != END) {
         digitalWrite(con->clockPin, LOW);
         if (val) {
             digitalWrite(con->dataPin, HIGH);
@@ -42,9 +46,12 @@ void updateRegisters(RegController *con) {
             digitalWrite(con->dataPin, LOW);
         }
         digitalWrite(con->clockPin, HIGH);
-          
+        Serial.print(val);
         val = next(iter);
     }
+    Serial.print("\n");
     digitalWrite(con->clockPin, LOW);
     digitalWrite(con->latchPin, HIGH);
+
+    freeIterator(iter);
   }

@@ -4,7 +4,7 @@
 
 void updateRegisters(uint16_t val);
 void pong();
-void counter();
+void counter(RegController *reg);
 void clearRegisters();
 void allOn();
 void setBrightness(int level);
@@ -18,7 +18,7 @@ int clearPin = 7;
 
 int numBytes = 6;
 // init for 48 pins or 6 bytes
-ByteSequence *seq  = newSequence(numBytes);
+ByteSequence *seq;
 RegController *reg;
 
 void setup() {
@@ -29,18 +29,20 @@ void setup() {
   pinMode(clearPin, OUTPUT);
   digitalWrite(clearPin, HIGH);
   setBrightness(100);
+  seq = newSequence(numBytes);
 
   reg = newController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
-
+  
   
 
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop() 
 {
-  counter();
+  counter(reg);
   delay(300);
+  
   
 }
 
@@ -55,7 +57,7 @@ void setBrightness(int level) {
   analogWrite(oePin, level);
 }
 
-void allOn(VFDController *controller) {
+void allOn(RegController *controller) {
   digitalWrite(controller->latchPin, LOW);
   for (int i = 0; i < 48; i++) {
     digitalWrite(clockPin, LOW);
@@ -91,11 +93,13 @@ void clearRegisters() {
   digitalWrite(clearPin, HIGH);
 }
 
-void counter() {
-  uint16_t count = 0;
+void counter(RegController *reg) {
+  int count = 0;
 
-  for (int i = 0; (count & 0xFFFF) != 0xFFFF; i++) {
-    updateRegisters(count);
+  for (int i = 0; count < 1000000; i++) {
+    convertNumtoSequence(reg->seq, count);
+    // displayState(reg->seq);
+    updateRegisters(reg);
     count++;
   }
 }
