@@ -25,15 +25,29 @@ ByteSequence *newSequence(int numBytes) {
 	return seq;
 }
 
-void LeftShiftBits(ByteSequence *seq) {
+void rightShiftBits(ByteSequence *seq) {
 	uint8_t carry = 0;
-	for (int i = 0; i < seq->numBytes; i++) {
+	for (int i = seq->numBytes - 1; i >= 0; i--) {
+		uint8_t temp = seq->bytes[i] & 0x01;
 		seq->bytes[i] >>= 1;
 		if (carry != 0x00) {
-		seq->bytes[i] |= 0x10;
+		seq->bytes[i] |= 0x80;
 		}
 
-		uint8_t carry = seq->bytes[i] & 0x01;
+		carry = temp;
+	}
+}
+
+void leftShiftBits(ByteSequence *seq) {
+	bool carry = false;
+	for (int i = 0; i < seq->numBytes; i++) {
+		uint8_t temp = seq->bytes[i] & 0x80;
+		seq->bytes[i] <<= 1;
+		if (carry) {
+			seq->bytes[i] |= 0x01;
+		}
+
+		carry = (temp != 0x00);
 	}
 }
 
@@ -48,7 +62,6 @@ void convertNumtoSequence(ByteSequence *seq, int num) {
 		uint32_t mask = 0x000000FF;
 		seq->bytes[i] = 0x00;	// reset byte
 		seq->bytes[i] = u_num & 0x000000FF;
-		//Serial.println(seq->bytes[i]);
 		u_num >>= 8;
 	}
 
@@ -68,7 +81,7 @@ void displayState(ByteSequence *seq) {
 String byteToString(uint8_t byte) {
 	String str = "";
 	for (int i = 0; i < BYTESIZE; i++) {
-		if ((byte & (0xF0 >> i)) != 0x00) {
+		if ((byte & (0x80 >> i)) != 0x00) {
 			str += "1";
 		} else {
 			str += "0";
@@ -95,17 +108,17 @@ Iterator *newIterator(ByteSequence *seq) {
  */
 int next(Iterator *it) {
 
-	if (it->pos > it->seq->numBytes * 8) {
+	if (it->pos >= it->seq->numBytes * 8) {
 		return END;
 	}
 
 	// Reverse direction of bytes
-	int byte = it->seq->numBytes - (it->pos / 8) - 1;
-	uint8_t mask = 0x80 >> (it->pos % 8);
+	// int byte = it->seq->numBytes - (it->pos / 8) - 1;
+	// uint8_t mask = 0x80 >> (it->pos % 8);
 
 	// normal direction of bytes
-	// int byte = it->pos / 8;
-	// uint8_t mask = 0x01 << (it->pos % 8);
+	int byte = it->pos / 8;
+	uint8_t mask = 0x01 << (it->pos % 8);
 	it->pos++;
 	return (it->seq->bytes[byte] & mask) != 0x00;
 

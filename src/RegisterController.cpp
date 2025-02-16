@@ -46,10 +46,8 @@ void updateRegisters(RegController *con) {
             digitalWrite(con->dataPin, LOW);
         }
         digitalWrite(con->clockPin, HIGH);
-        Serial.print(val);
         val = next(iter);
     }
-    Serial.print("\n");
     digitalWrite(con->clockPin, LOW);
     digitalWrite(con->latchPin, HIGH);
 

@@ -17,7 +17,8 @@ struct Iterator {
 };
 
 void reWriteByte(int position, uint8_t newByte, ByteSequence *seq);
-void LeftShiftBits(ByteSequence *seq);
+void leftShiftBits(ByteSequence *seq);
+void rightShiftBits(ByteSequence *seq);
 void freeSequence(ByteSequence *seq);
 Iterator *newIterator(ByteSequence *seq);
 int next(Iterator *it);

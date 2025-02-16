@@ -3,11 +3,13 @@
 #include "RegisterController.h"
 
 void updateRegisters(uint16_t val);
-void pong();
+void pong(RegController *reg);
 void counter(RegController *reg);
 void clearRegisters();
 void allOn();
 void setBrightness(int level);
+void alternating(RegController *reg);
+void demo(RegController *reg);
 
 int tDelay = 100;
 int latchPin = 11;      // (11) ST_CP [RCK] on 74HC595
@@ -35,15 +37,47 @@ void setup() {
   
   
 
-  Serial.begin(9600);
+  //Serial.begin(9600);
 }
+
+
 
 void loop() 
 {
-  counter(reg);
+
+  demo(reg);
+  
+}
+
+void demo(RegController *reg) {
+  for (int i = 0; i < 3; i++) {
+    pong(reg);
+  }
+  delay(400);
+  for (int i = 0; i < 1; i++) {
+    counter(reg);
+  }
+  delay(400);
+  for (int i = 0; i < 8; i++) {
+    alternating(reg);
+  }
+  delay(400);
+  
+}
+
+void alternating(RegController *reg) {
+  for (int i = 0; i < reg->seq->numBytes; i++) {
+    reWriteByte(i, 0xAA, reg->seq);
+  }
+  updateRegisters(reg);
   delay(300);
-  
-  
+
+  for (int i = 0; i < reg->seq->numBytes; i++) {
+    reWriteByte(i, 0x55, reg->seq);
+  }
+  updateRegisters(reg);
+  delay(300);
+
 }
 
 /**
@@ -96,27 +130,34 @@ void clearRegisters() {
 void counter(RegController *reg) {
   int count = 0;
 
-  for (int i = 0; count < 1000000; i++) {
+  for (int i = 0; count < 0xFF; i++) {
     convertNumtoSequence(reg->seq, count);
+    for (int j = 1; j < reg->seq->numBytes; j++) {
+      reWriteByte(j, reg->seq->bytes[0], reg->seq);
+    }
     // displayState(reg->seq);
     updateRegisters(reg);
+    delay(100);
     count++;
   }
 }
 
-void pong() {
-  uint16_t ball = 0x0001;
-
-  for (int i = 0; i < 16; i++) {
-    updateRegisters(ball);
-    ball <<= 1;
+void pong(RegController *reg) {
+  reWriteByte(0, 0x01, reg->seq);
+  
+  for (int i = 0; i < reg->numPins; i++) {
+    updateRegisters(reg);
+    leftShiftBits(reg->seq);
+    displayState(reg->seq);
+    
     delay(50);
   }
 
-  ball = 0x8000;
-  for (int i = 0; i < 16; i++) {
-    updateRegisters(ball);
-    ball >>= 1;
+  reWriteByte(5, 0x80, reg->seq);
+  for (int i = 0; i < reg->numPins; i++) {
+    updateRegisters(reg);
+    rightShiftBits(reg->seq);
+    displayState(reg->seq);
     delay(50);
   }
 
