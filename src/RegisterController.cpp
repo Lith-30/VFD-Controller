@@ -37,14 +37,19 @@ void updateRegisters(RegController *con) {
     int val = next(iter);
 
     digitalWrite(con->latchPin, LOW);
+    //PORTD &= ~(1 << con->latchPin);
 
     while (val != END) {
         digitalWrite(con->clockPin, LOW);
+
+        //digitalWrite(con->dataPin, val ? HIGH : LOW);
+
         if (val) {
             digitalWrite(con->dataPin, HIGH);
         } else {
             digitalWrite(con->dataPin, LOW);
         }
+        
         digitalWrite(con->clockPin, HIGH);
         val = next(iter);
     }

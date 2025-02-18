@@ -37,7 +37,7 @@ void setup() {
   
   
 
-  //Serial.begin(9600);
+  Serial.begin(9600);
 }
 
 
@@ -102,25 +102,6 @@ void allOn(RegController *controller) {
   digitalWrite(latchPin, HIGH);
 }
 
-void updateRegisters(uint16_t val) {
-  digitalWrite(latchPin, LOW);
-  
-  for (int i = 0; i < 16; i++) {
-    digitalWrite(clockPin, LOW);
-
-    if (val & 0x01) {
-      digitalWrite(dataPin, HIGH);
-    } else {
-      digitalWrite(dataPin, LOW);
-    }
-    digitalWrite(clockPin, HIGH);
-    
-    val >>= 1;
-  }
-  digitalWrite(clockPin, LOW);
-  digitalWrite(latchPin, HIGH);
-}
-
 void clearRegisters() {
   digitalWrite(clearPin, LOW);
   delay(1);
@@ -143,21 +124,22 @@ void counter(RegController *reg) {
 }
 
 void pong(RegController *reg) {
-  reWriteByte(0, 0x01, reg->seq);
+  reWriteByte(0, 0xC1, reg->seq);
   
   for (int i = 0; i < reg->numPins; i++) {
     updateRegisters(reg);
     leftShiftBits(reg->seq);
-    displayState(reg->seq);
+    Serial.println(i);
+    // displayState(reg->seq);
     
     delay(50);
   }
 
-  reWriteByte(5, 0x80, reg->seq);
+  reWriteByte(5, 0x83, reg->seq);
   for (int i = 0; i < reg->numPins; i++) {
     updateRegisters(reg);
     rightShiftBits(reg->seq);
-    displayState(reg->seq);
+    // displayState(reg->seq);
     delay(50);
   }
 
