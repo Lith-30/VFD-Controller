@@ -18,7 +18,7 @@ int dataPin = 12;     // (12) DS [S1] on 74HC595
 int oePin = 8;
 int clearPin = 7;
 
-int numBytes = 6;
+int numBytes = 8;
 // init for 48 pins or 6 bytes
 ByteSequence *seq;
 RegController *reg;
@@ -30,7 +30,7 @@ void setup() {
   pinMode(oePin, OUTPUT);
   pinMode(clearPin, OUTPUT);
   digitalWrite(clearPin, HIGH);
-  setBrightness(100);
+  setBrightness(0);
   seq = newSequence(numBytes);
 
   reg = newController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
@@ -44,16 +44,39 @@ void setup() {
 
 void loop() 
 {
-
-  demo(reg);
+  // Grid Pin
+  reWriteByte(3, 0x10, reg->seq);
+  // Segment Pin
+  reWriteByte(0, 0x01, reg->seq);
+  updateRegisters(reg);
+  // for (int i = 0; i < reg->seq->numBytes; i++) {
+  //   reWriteByte(i, 0xFF, reg->seq);
+  // }
+  // updateRegisters(reg);
+  
+  // for (int i = 0; i < reg->seq->numBytes; i++) {
+  //   reWriteByte(i, 0xFF, reg->seq);
+  // }
+  // updateRegisters(reg);
+  // delay(1000);
+  // for (int i = 0; i < reg->seq->numBytes; i++) {
+  //   reWriteByte(i, 0xFF, reg->seq);
+  // }
+  // updateRegisters(reg);
+  // delay(1000);
+  
+  // counter(reg);
   
 }
 
 void demo(RegController *reg) {
+  
+  
   for (int i = 0; i < 3; i++) {
     pong(reg);
   }
   delay(400);
+
   for (int i = 0; i < 1; i++) {
     counter(reg);
   }
