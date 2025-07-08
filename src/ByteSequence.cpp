@@ -129,3 +129,71 @@ void freeIterator(Iterator *it) {
 }
 
 
+class ByteSequence
+{
+private:
+	uint8_t *bytes;
+	int numBytes;
+public:
+	ByteSequence(int numBytes);
+	~ByteSequence();
+	reWriteByte(int position, uint8_t newByte);
+};
+
+/* Constructor method */
+ByteSequence::ByteSequence(int numBytes) {
+
+	bytes = new uint8_t[numBytes];
+	// init to zero
+	for (int i = 0; i < numBytes; i++) {
+		bytes[i] = 0;
+	}
+	numBytes = numBytes;
+}
+/* Destructor Method */
+ByteSequence::~ByteSequence() {
+	delete bytes;
+}
+ByteSequence::reWriteByte(int position, uint8_t newByte) {
+	if (position >= numBytes) {
+		return;
+	}
+	bytes[position] = newByte;
+}
+
+ByteSequence::rightShiftBits() {
+	uint8_t carry = 0;
+	for (int i = numBytes - 1; i >= 0; i--) {
+		uint8_t temp = bytes[i] & 0x01;
+		bytes[i] >>= 1;
+		if (carry != 0x00) {
+		bytes[i] |= 0x80;
+		}
+
+		carry = temp;
+	}
+}
+
+ByteSequence::leftShiftBits() {
+	bool carry = false;
+	for (int i = 0; i < numBytes; i++) {
+		uint8_t temp = bytes[i] & 0x80;
+		bytes[i] <<= 1;
+		if (carry) {
+			bytes[i] |= 0x01;
+		}
+
+		carry = (temp != 0x00);
+	}
+}
+
+ByteSequence::convertNumtoSequence(ByteSequence *seq, int num) {
+	uint32_t u_num = num;
+	for (int i = 0; i < seq->numBytes; i++) {
+		uint32_t mask = 0x000000FF;
+		seq->bytes[i] = 0x00;	// reset byte
+		seq->bytes[i] = u_num & 0x000000FF;
+		u_num >>= 8;
+	}
+
+}
