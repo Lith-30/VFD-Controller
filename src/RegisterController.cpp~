@@ -1,7 +1,6 @@
 #include "RegisterController.h"
 #include <Arduino.h>
 #include "ByteSequence.h"
-#include "misc/ByteSequenceIterator"
 
 #define BYTESIZE 8;
 
@@ -60,50 +59,61 @@
 //     freeIterator(iter);
 //   }
 
-RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin, ByteSequence seq) {
-    latchPin = latchPin;
-    clockPin = clockPin;
-    dataPin = dataPin;
-    oePin = oePin;
-    clearPin = clearPin;
-    seq = seq;
-    numPins = seq.getNumBytes() * BYTESIZE;
-}
+  class RegisterController {
+    private:
+        int latchPin;
+        int clockPin;
+        int dataPin;
+        int oePin;
+        int clearPin;
+        ByteSequence seq;
+        int numPins;
+    public:
 
-RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin) {
-    ByteSequence seq((numPins + 7) / 8);
-
-    RegisterController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
-}
-
-~RegisterController() {}
-
-
-void updateRegisters() {
-    ByteSequenceIterator iter(seq);
-
-    int val = iter.next();
-
-    digitalWrite(latchPin, LOW);
-    //PORTD &= ~(1 << latchPin);
-
-    while (!iter.atEnd()) {
-        digitalWrite(clockPin, LOW);
-
-        //digitalWrite(dataPin, val ? HIGH : LOW);
-
-        if (val) {
-            digitalWrite(dataPin, HIGH);
-        } else {
-            digitalWrite(dataPin, LOW);
+        RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin, ByteSequence seq) {
+            latchPin = latchPin;
+            clockPin = clockPin;
+            dataPin = dataPin;
+            oePin = oePin;
+            clearPin = clearPin;
+            seq = seq;
+            numPins = seq.getNumBytes() * BYTESIZE;
         }
-        
-        digitalWrite(clockPin, HIGH);
-        val = iter.next();
-    }
-    digitalWrite(clockPin, LOW);
-    digitalWrite(latchPin, HIGH);
 
-    
-}
+        RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin) {
+            ByteSequence seq((numPins + 7) / 8);
 
+            RegisterController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
+        }
+
+        ~RegisterController() {}
+
+
+        void updateRegisters() {
+            Iterator *iter = seq.newIterator();
+            int val = next(iter);
+
+            digitalWrite(latchPin, LOW);
+            //PORTD &= ~(1 << latchPin);
+
+            while (val != END) {
+                digitalWrite(clockPin, LOW);
+
+                //digitalWrite(dataPin, val ? HIGH : LOW);
+
+                if (val) {
+                    digitalWrite(dataPin, HIGH);
+                } else {
+                    digitalWrite(dataPin, LOW);
+                }
+                
+                digitalWrite(clockPin, HIGH);
+                val = next(iter);
+            }
+            digitalWrite(clockPin, LOW);
+            digitalWrite(latchPin, HIGH);
+
+            freeIterator(iter);
+        }
+
+  }

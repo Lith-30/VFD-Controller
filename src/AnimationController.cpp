@@ -20,8 +20,3 @@ AnimationController::AnimationController(/* args */) {
 AnimationController::~AnimationController() {
 
 }
-
-
-AnimationController::initMaps() {
-    
-}

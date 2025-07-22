@@ -20,8 +20,8 @@ int clearPin = 7;
 
 int numBytes = 8;
 // init for 48 pins or 6 bytes
-ByteSequence *seq;
-RegController *reg;
+ByteSequence seq;
+RegController reg;
 
 void setup() {
   pinMode(latchPin, OUTPUT);
@@ -31,9 +31,9 @@ void setup() {
   pinMode(clearPin, OUTPUT);
   digitalWrite(clearPin, HIGH);
   setBrightness(0);
-  seq = newSequence(numBytes);
+  ByteSequence seq(numBytes);
 
-  reg = newController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
+  RegisterController reg(latchPin, clockPin, dataPin, oePin, clearPin, seq);
   
   
 
@@ -105,6 +105,7 @@ void alternating(RegController *reg) {
 
 /**
   Brightness can go from 0 to 1023
+  Scale is inverted, higher the number, lower the brightness
 */
 void setBrightness(int level) {
   if (level > 1023 || level < 0) {
