@@ -1,7 +1,7 @@
 #include "RegisterController.h"
 #include <Arduino.h>
 #include "ByteSequence.h"
-#include "misc/ByteSequenceIterator"
+#include "misc/ByteSequenceIterator.h"
 
 #define BYTESIZE 8;
 
@@ -60,26 +60,18 @@
 //     freeIterator(iter);
 //   }
 
-RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin, ByteSequence seq) {
+RegisterController::RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin) {
     latchPin = latchPin;
     clockPin = clockPin;
     dataPin = dataPin;
     oePin = oePin;
     clearPin = clearPin;
-    seq = seq;
-    numPins = seq.getNumBytes() * BYTESIZE;
 }
 
-RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin) {
-    ByteSequence seq((numPins + 7) / 8);
-
-    RegisterController(latchPin, clockPin, dataPin, oePin, clearPin, seq);
-}
-
-~RegisterController() {}
+RegisterController::~RegisterController() {}
 
 
-void updateRegisters() {
+void RegisterController::updateRegisters(ByteSequence seq) {
     ByteSequenceIterator iter(seq);
 
     int val = iter.next();
@@ -102,8 +94,25 @@ void updateRegisters() {
         val = iter.next();
     }
     digitalWrite(clockPin, LOW);
-    digitalWrite(latchPin, HIGH);
-
-    
+    digitalWrite(latchPin, HIGH); 
 }
 
+int RegisterController::getLatchPin() {
+    return latchPin;
+}
+
+int RegisterController::getClockPin() {
+    return clockPin;
+}
+
+int RegisterController::getDataPin() {
+    return dataPin;
+}
+
+int RegisterController::getOePin() {
+    return oePin;
+}
+
+int RegisterController::getClearPin() {
+    return clearPin;    
+}

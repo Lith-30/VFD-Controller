@@ -153,6 +153,10 @@ void ByteSequence::reWriteByte(int position, uint8_t newByte) {
 	bytes[position] = newByte;
 }
 
+void ByteSequence::reWriteByte(int position, uint8_t newByte, ByteSequence seq) {
+	seq.reWriteByte(position, newByte);
+}
+
 void ByteSequence::rightShiftBits() {
 	uint8_t carry = 0;
 	for (int i = numBytes - 1; i >= 0; i--) {
@@ -212,6 +216,14 @@ String ByteSequence::byteToString(uint8_t byte) {
 	}
 	str += "\0";
 	return str;
+}
+
+uint8_t ByteSequence::getByte(int pos) {
+	if (pos >= numBytes || pos < 0){
+		return 0;
+	}
+
+	return bytes[pos];
 }
 
 // /**

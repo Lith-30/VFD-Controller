@@ -1,32 +1,34 @@
-#include <iostream>
-#include "Iterator.h"
+#include "ByteSequenceIterator.h"
 #include "../ByteSequence.h"
+#define BYTESIZE 8
 
-Iterator::Iterator(ByteSequence seq) {
-    this.seq = seq;
-    pos = 0;
+
+ByteSequenceIterator::ByteSequenceIterator(ByteSequence sequence):
+    seq(sequence),
+    pos(0)
+{
 }
 
-Iterator::~Iterator(){}
+ByteSequenceIterator::~ByteSequenceIterator(){}
 
-int Iterator::next() {
-    if (pos >= seq->numBytes * 8) {
-        return NULL;
+int ByteSequenceIterator::next() {
+    if (pos >= seq.getNumBytes() * BYTESIZE) {
+        return 0;
     }
 
     // Reverse direction of bytes
-    // int byte = seq->numBytes - (pos / 8) - 1;
-    // uint8_t mask = 0x80 >> (pos % 8);
+    // int byte = seq->numBytes - (pos / BYTESIZE) - 1;
+    // uintBYTESIZE_t mask = 0xBYTESIZE0 >> (pos % BYTESIZE);
 
     // normal direction of bytes
-    int byte = pos / 8;
-    uint8_t mask = 0x01 << (pos % 8);
+    int byte = pos / BYTESIZE;
+    uint8_t mask = 0x01 << (pos % BYTESIZE);
     pos++;
-    return (seq->bytes[byte] & mask) != 0x00;
+    return (seq.getByte(byte) & mask) != 0x00;
 }
 
-bool Iterator::atEnd() {
-    if (pos >= seq->numBytes) {
+bool ByteSequenceIterator::atEnd() {
+    if (pos >= seq.getNumBytes() * BYTESIZE) {
         return true;
     }
 

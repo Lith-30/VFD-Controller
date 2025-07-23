@@ -10,15 +10,17 @@ class RegisterController {
         int dataPin;
         int oePin;
         int clearPin;
-        ByteSequence seq;
-        int numPins;
 
     public:
-        void RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin, ByteSequence seq);
-        void ResgisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin, int numPins);
+        RegisterController(int latchPin, int clockPin, int dataPin, int oePin, int clearPin);
         ~RegisterController();
-        void updateRegisters();
-}
+        void updateRegisters(ByteSequence seq);
+        int getLatchPin();
+        int getClockPin();
+        int getDataPin();
+        int getOePin();
+        int getClearPin(); 
+};
 
 
 #endif // REGISTERCONTROLLER_H

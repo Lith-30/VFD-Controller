@@ -2,14 +2,16 @@
 #include "ByteSequence.h"
 #include "RegisterController.h"
 
+#define BYTESIZE 8
+
 void updateRegisters(uint16_t val);
-void pong(RegController *reg);
-void counter(RegController *reg);
+void pong(RegisterController reg);
+void counter(RegisterController reg);
 void clearRegisters();
 void allOn();
 void setBrightness(int level);
-void alternating(RegController *reg);
-void demo(RegController *reg);
+void alternating(RegisterController reg);
+void demo(RegisterController reg);
 
 int tDelay = 100;
 int latchPin = 11;      // (11) ST_CP [RCK] on 74HC595
@@ -20,8 +22,8 @@ int clearPin = 7;
 
 int numBytes = 8;
 // init for 48 pins or 6 bytes
-ByteSequence seq;
-RegController reg;
+ByteSequence seq(numBytes);
+RegisterController reg(latchPin, clockPin, dataPin, oePin, clearPin);
 
 void setup() {
   pinMode(latchPin, OUTPUT);
@@ -31,9 +33,6 @@ void setup() {
   pinMode(clearPin, OUTPUT);
   digitalWrite(clearPin, HIGH);
   setBrightness(0);
-  ByteSequence seq(numBytes);
-
-  RegisterController reg(latchPin, clockPin, dataPin, oePin, clearPin, seq);
   
   
 
@@ -42,13 +41,12 @@ void setup() {
 
 
 
-void loop() 
-{
+void loop() {
   // Grid Pin
-  reWriteByte(3, 0x10, reg->seq);
+  seq.reWriteByte(3, 0x10);
   // Segment Pin
-  reWriteByte(0, 0x01, reg->seq);
-  updateRegisters(reg);
+  seq.reWriteByte(0, 0x01);
+  reg.updateRegisters(seq);
   // for (int i = 0; i < reg->seq->numBytes; i++) {
   //   reWriteByte(i, 0xFF, reg->seq);
   // }
@@ -69,7 +67,7 @@ void loop()
   
 }
 
-void demo(RegController *reg) {
+void demo(RegisterController reg) {
   
   
   for (int i = 0; i < 3; i++) {
@@ -88,17 +86,18 @@ void demo(RegController *reg) {
   
 }
 
-void alternating(RegController *reg) {
-  for (int i = 0; i < reg->seq->numBytes; i++) {
-    reWriteByte(i, 0xAA, reg->seq);
+void alternating(RegisterController reg) {
+  int numBytes = seq.getNumBytes();
+  for (int i = 0; i < numBytes; i++) {
+    seq.reWriteByte(i, 0xAA);
   }
-  updateRegisters(reg);
+  reg.updateRegisters(seq);
   delay(300);
 
-  for (int i = 0; i < reg->seq->numBytes; i++) {
-    reWriteByte(i, 0x55, reg->seq);
+  for (int i = 0; i < numBytes; i++) {
+    seq.reWriteByte(i, 0x55);
   }
-  updateRegisters(reg);
+  reg.updateRegisters(seq);
   delay(300);
 
 }
@@ -115,54 +114,37 @@ void setBrightness(int level) {
   analogWrite(oePin, level);
 }
 
-void allOn(RegController *controller) {
-  digitalWrite(controller->latchPin, LOW);
-  for (int i = 0; i < 48; i++) {
-    digitalWrite(clockPin, LOW);
-    digitalWrite(dataPin, HIGH);
-    digitalWrite(clockPin, HIGH);
-  }
-  digitalWrite(clockPin, LOW);
-  digitalWrite(latchPin, HIGH);
-}
-
-void clearRegisters() {
-  digitalWrite(clearPin, LOW);
-  delay(1);
-  digitalWrite(clearPin, HIGH);
-}
-
-void counter(RegController *reg) {
+void counter(RegisterController reg) {
   int count = 0;
 
   for (int i = 0; count < 0xFF; i++) {
-    convertNumtoSequence(reg->seq, count);
-    for (int j = 1; j < reg->seq->numBytes; j++) {
-      reWriteByte(j, reg->seq->bytes[0], reg->seq);
+    seq.convertNumtoSequence(count);
+    for (int j = 1; j < seq.getNumBytes(); j++) {
+      seq.reWriteByte(j, seq.getByte(0));
     }
     // displayState(reg->seq);
-    updateRegisters(reg);
+    reg.updateRegisters(seq);
     delay(100);
     count++;
   }
 }
 
-void pong(RegController *reg) {
-  reWriteByte(0, 0xC1, reg->seq);
+void pong(RegisterController reg) {
+  seq.reWriteByte(0, 0xC1);
   
-  for (int i = 0; i < reg->numPins; i++) {
-    updateRegisters(reg);
-    leftShiftBits(reg->seq);
+  for (int i = 0; i < seq.getNumBytes() * BYTESIZE; i++) {
+    reg.updateRegisters(seq);
+    seq.leftShiftBits();
     Serial.println(i);
     // displayState(reg->seq);
     
     delay(50);
   }
 
-  reWriteByte(5, 0x83, reg->seq);
-  for (int i = 0; i < reg->numPins; i++) {
-    updateRegisters(reg);
-    rightShiftBits(reg->seq);
+  seq.reWriteByte(5, 0x83);
+  for (int i = 0; i < seq.getNumBytes() * BYTESIZE; i++) {
+    reg.updateRegisters(seq);
+    seq.rightShiftBits();
     // displayState(reg->seq);
     delay(50);
   }

@@ -1,12 +1,10 @@
-#include <iostream>
-
 #ifndef ITERATOR_H
 #define ITERATOR_H
 
+#include "Iterator.h"
+
 class Iterator {
 public:
-    Iterator();
-    ~Iterator();
     int next();
     bool atEnd();
 };
