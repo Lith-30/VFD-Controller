@@ -1,0 +1,18 @@
+{
+    "numBytes": 8,
+    "brightness": 0,
+
+    "letters": {
+        "A": {
+            "grid": 0,
+            "segment": 0
+        },
+        "B": 2
+    },
+    "gridPins": {
+
+    },
+    "segmentPins": {
+
+    }
+}

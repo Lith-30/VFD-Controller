@@ -1,0 +1,7 @@
+{
+    "latchPin": 11,
+    "clockPin": 9,
+    "dataPin": 12,
+    "oePin": 8,
+    "clearPin": 7
+}
