@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "ByteSequence.h"
 #include "misc/ByteSequenceIterator.h"
+#include "Configs/PinLoader.h"
 
 #define BYTESIZE 8;
 
@@ -66,6 +67,11 @@ RegisterController::RegisterController(int latchPin, int clockPin, int dataPin, 
     dataPin = dataPin;
     oePin = oePin;
     clearPin = clearPin;
+}
+RegisterController::RegisterController() {
+    // Try and load a config file
+
+
 }
 
 RegisterController::~RegisterController() {}
